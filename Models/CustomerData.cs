@@ -18,18 +18,30 @@ namespace CustomerManager.Models
         public string CustomerConsultant { get; set; }
         public string CustomerProjectLead { get; set; }
 
-        [NotMapped]
-        public List<String> CustomerContacts { get; set; }
+        public ICollection<CustomerContact> CustomerContacts { get; set; }
+        public ICollection<CustomerLicense> CustomerLicenses { get; set; }       
 
-        [NotMapped]
-        public List<String> CustomerLicenses { get; set; }
-
-        public CustomerActivity CustomerActivitySelection { get; set; }
+        public CustomerStatus Status { get; set; }
     }
 
-    public enum CustomerActivity
+    public class CustomerContact
     {
-        Aktiv,
-        Inaktiv
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Phone { get; set; }
+    }
+
+    public class CustomerLicense
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+    }
+
+    public enum CustomerStatus
+    {
+        Submitted,
+        Approved,
+        Rejected
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CustomerManager.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230413175747_test")]
-    partial class test
+    [Migration("20230413184146_addedCustomersDataModel")]
+    partial class addedCustomersDataModel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,7 +24,7 @@ namespace CustomerManager.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("CustomerManager.Models.CustomerData", b =>
+            modelBuilder.Entity("CustomerManager.Models.CustomerContact", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -32,8 +32,31 @@ namespace CustomerManager.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CustomerActivitySelection")
+                    b.Property<int?>("CustomerDataId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerDataId");
+
+                    b.ToTable("CustomerContact");
+                });
+
+            modelBuilder.Entity("CustomerManager.Models.CustomerData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("CustomerAdress")
                         .IsRequired()
@@ -63,9 +86,34 @@ namespace CustomerManager.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("CustomerData");
+                });
+
+            modelBuilder.Entity("CustomerManager.Models.CustomerLicense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("CustomerDataId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerDataId");
+
+                    b.ToTable("CustomerLicense");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -270,6 +318,20 @@ namespace CustomerManager.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("CustomerManager.Models.CustomerContact", b =>
+                {
+                    b.HasOne("CustomerManager.Models.CustomerData", null)
+                        .WithMany("CustomerContacts")
+                        .HasForeignKey("CustomerDataId");
+                });
+
+            modelBuilder.Entity("CustomerManager.Models.CustomerLicense", b =>
+                {
+                    b.HasOne("CustomerManager.Models.CustomerData", null)
+                        .WithMany("CustomerLicenses")
+                        .HasForeignKey("CustomerDataId");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -319,6 +381,13 @@ namespace CustomerManager.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CustomerManager.Models.CustomerData", b =>
+                {
+                    b.Navigation("CustomerContacts");
+
+                    b.Navigation("CustomerLicenses");
                 });
 #pragma warning restore 612, 618
         }
