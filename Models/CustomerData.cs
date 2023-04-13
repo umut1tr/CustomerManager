@@ -18,10 +18,12 @@ namespace CustomerManager.Models
         public string CustomerConsultant { get; set; }
         public string CustomerProjectLead { get; set; }
 
+        public string CreatorId { get; set; }
         public ICollection<CustomerContact> CustomerContacts { get; set; }
         public ICollection<CustomerLicense> CustomerLicenses { get; set; }       
 
         public CustomerStatus Status { get; set; }
+
     }
 
     public class CustomerContact
