@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using CustomerManager.Data;
 using CustomerManager.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CustomerManager.Pages.CustomersData
 {
-    public class CreateModel : PageModel
+    public class CreateModel : DI_BasePageModel
     {
-        private readonly CustomerManager.Data.ApplicationDbContext _context;
-
-        public CreateModel(CustomerManager.Data.ApplicationDbContext context)
-        {
-            _context = context;
+        public CreateModel(ApplicationDbContext context,
+            IAuthorizationService authorizationService,
+            UserManager<IdentityUser> userManager)
+            : base(context, authorizationService, userManager)
+        {            
         }
 
         public IActionResult OnGet()
@@ -31,13 +27,13 @@ namespace CustomerManager.Pages.CustomersData
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-          if (!ModelState.IsValid || _context.CustomerData == null || CustomerData == null)
+          if (!ModelState.IsValid || Context.CustomerData == null || CustomerData == null)
             {
                 return Page();
             }
 
-            _context.CustomerData.Add(CustomerData);
-            await _context.SaveChangesAsync();
+            Context.CustomerData.Add(CustomerData);
+            await Context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }
