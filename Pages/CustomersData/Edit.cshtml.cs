@@ -8,34 +8,48 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CustomerManager.Data;
 using CustomerManager.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using CustomerManager.Authorization;
 
 namespace CustomerManager.Pages.CustomersData
 {
-    public class EditModel : PageModel
+    public class EditModel : DI_BasePageModel
     {
-        private readonly CustomerManager.Data.ApplicationDbContext _context;
+        
 
-        public EditModel(CustomerManager.Data.ApplicationDbContext context)
+        public EditModel(ApplicationDbContext context,
+            IAuthorizationService authorizationService,
+            UserManager<IdentityUser> userManager)
+            : base(context, authorizationService, userManager)
         {
-            _context = context;
+            
         }
 
         [BindProperty]
-        public CustomerData CustomerData { get; set; } = default!;
+        public CustomerData CustomerData { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            if (id == null || _context.CustomerData == null)
+            if (id == null || Context.CustomerData == null)
             {
                 return NotFound();
             }
 
-            var customerdata =  await _context.CustomerData.FirstOrDefaultAsync(m => m.Id == id);
-            if (customerdata == null)
+            CustomerData =  await Context.CustomerData.FirstOrDefaultAsync(m => m.Id == id);
+
+            if (CustomerData == null)
             {
                 return NotFound();
             }
-            CustomerData = customerdata;
+
+            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                User, CustomerData, CustomerDataOperations.Update);
+
+            if (isAuthorized.Succeeded == false)
+                return Forbid();
+
+
             return Page();
         }
 
@@ -48,11 +62,11 @@ namespace CustomerManager.Pages.CustomersData
                 return Page();
             }
 
-            _context.Attach(CustomerData).State = EntityState.Modified;
+            Context.Attach(CustomerData).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -71,7 +85,7 @@ namespace CustomerManager.Pages.CustomersData
 
         private bool CustomerDataExists(int id)
         {
-          return (_context.CustomerData?.Any(e => e.Id == id)).GetValueOrDefault();
+          return (Context.CustomerData?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
