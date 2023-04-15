@@ -3,6 +3,7 @@ using CustomerManager.Data;
 using CustomerManager.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using CustomerManager.Authorization;
 
 namespace CustomerManager.Pages.CustomersData
 {
@@ -27,10 +28,15 @@ namespace CustomerManager.Pages.CustomersData
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-          if (!ModelState.IsValid || Context.CustomerData == null || CustomerData == null)
-            {
-                return Page();
-            }
+
+            CustomerData.CreatorId = UserManager.GetUserId(User);
+
+            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                User, CustomerData, CustomerDataOperations.Create);
+
+            if (isAuthorized.Succeeded == false)
+                return Forbid();
+          
 
             Context.CustomerData.Add(CustomerData);
             await Context.SaveChangesAsync();
