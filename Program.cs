@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using CustomerManager.Data;
+using CustomerManager.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,8 @@ builder.Services.AddAuthorization(options =>
 
 });
 
+// Registers our AuthorizationHandler
+builder.Services.AddScoped<IAuthorizationHandler, CustomerCreatorAuthorizationHandler>();
 
 var app = builder.Build();
 
